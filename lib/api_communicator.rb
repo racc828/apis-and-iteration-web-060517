@@ -2,6 +2,13 @@ require 'rest-client'
 require 'json'
 require 'pry'
 
+def get_hash_from_api(url)
+  raw_data = RestClient.get(url)
+  hash = JSON.parse(raw_data)
+  hash
+end
+
+
 def get_character_movies_from_api(character)
 
   if !find_character_hash(character)
@@ -11,9 +18,8 @@ def get_character_movies_from_api(character)
     film_urls_array = find_character_hash(character)["films"]
 
     films_array = film_urls_array.each_with_object([]) do |film_url, temp_array|
-    film_raw_json = RestClient.get(film_url)
-    film_hash = JSON.parse(film_raw_json)
-    temp_array << film_hash
+      film_hash = get_hash_from_api(film_url)
+      temp_array << film_hash
     end
   end
 
@@ -22,16 +28,10 @@ def get_character_movies_from_api(character)
 end
 
 def find_character_hash(character)
-  #make the web request
-  all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  #parse data
-  character_hash = JSON.parse(all_characters)
-
-  #Array of character hashes
+  character_hash = get_hash_from_api('http://www.swapi.co/api/people/')
   the_character = character_hash["results"].find do |char_hash|
     char_hash["name"] == character
   end
-
   the_character
 end
 
@@ -44,11 +44,27 @@ def parse_character_movies(films_hash)
 
 end
 
+
+###Version for Dan
+# def parse_character_movies(films_hash, fields)
+#   # some iteration magic and puts out the movies in a nice list
+#   films_hash.each do |film|
+#     fields.each do |field|
+#       puts "The #{field} is..."
+#       puts "#{film[field]}"
+#     end
+#   end
+#
+# end
+
 def show_character_movies(character)
   films_hash = get_character_movies_from_api(character)
   parse_character_movies(films_hash)
 end
 
+x = get_character_movies_from_api("Luke Skywalker")
+fields = ["episode_id", "opening_crawl", "title"]
+parse_character_movies(x, fields)
 ## BONUS
 
 # that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
