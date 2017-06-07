@@ -4,12 +4,17 @@ require 'pry'
 
 def get_character_movies_from_api(character)
 
-  film_urls_array = find_character_hash(character)["films"]
+  if !find_character_hash(character)
+    puts "You spelled that wrong please enter a character"
+    character = gets.chomp
+  else
+    film_urls_array = find_character_hash(character)["films"]
 
-  films_array = film_urls_array.each_with_object([]) do |film_url, temp_array|
+    films_array = film_urls_array.each_with_object([]) do |film_url, temp_array|
     film_raw_json = RestClient.get(film_url)
     film_hash = JSON.parse(film_raw_json)
     temp_array << film_hash
+    end
   end
 
   films_array
@@ -28,7 +33,7 @@ def find_character_hash(character)
   end
 
   the_character
-ends
+end
 
 
 def parse_character_movies(films_hash)
@@ -48,6 +53,3 @@ end
 
 # that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
 # can you split it up into helper methods?
- raw_movies = get_character_movies_from_api("Luke Skywalker")
-
- parse_character_movies(raw_movies)
