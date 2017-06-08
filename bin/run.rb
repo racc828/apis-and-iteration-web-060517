@@ -10,4 +10,6 @@ until find_character_hash(character)
   character = get_character_from_user
 end
 
-show_character_movies(character)
+if character
+  show_character_movies(character)
+end

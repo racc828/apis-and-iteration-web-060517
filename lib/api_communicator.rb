@@ -10,13 +10,12 @@ end
 
 
 def get_character_movies_from_api(character)
-
+  ###NEED TO GET ALL PAGES
   if !find_character_hash(character)
     puts "You spelled that wrong please enter a character"
     character = gets.chomp
   else
     film_urls_array = find_character_hash(character)["films"]
-
     films_array = film_urls_array.each_with_object([]) do |film_url, temp_array|
       film_hash = get_hash_from_api(film_url)
       temp_array << film_hash
@@ -28,10 +27,24 @@ def get_character_movies_from_api(character)
 end
 
 def find_character_hash(character)
-  character_hash = get_hash_from_api('http://www.swapi.co/api/people/')
-  the_character = character_hash["results"].find do |char_hash|
-    char_hash["name"] == character
+
+  paged_hash = get_hash_from_api('http://www.swapi.co/api/people/')
+
+  #Add all pages to hash_array
+  hash_array = []
+  while paged_hash["next"]
+    hash_array += paged_hash["results"]
+    paged_hash = get_hash_from_api(paged_hash["next"])
   end
+
+  #Merge all hashes into one big hash
+  character_hash = hash_array.each_with_object({}) do |hash, temp_hash|
+    temp_hash[hash["name"]]= hash
+  end
+  the_character = character_hash[character]
+  # the_character = character_hash.find do |char_hash|
+  #   char_hash["name"] == character
+  # end
   the_character
 end
 
@@ -45,7 +58,7 @@ def parse_character_movies(films_hash)
 end
 
 
-###Version for Dan
+# ##Version for Dan
 # def parse_character_movies(films_hash, fields)
 #   # some iteration magic and puts out the movies in a nice list
 #   films_hash.each do |film|
@@ -62,10 +75,12 @@ def show_character_movies(character)
   parse_character_movies(films_hash)
 end
 
-x = get_character_movies_from_api("Luke Skywalker")
-fields = ["episode_id", "opening_crawl", "title"]
-parse_character_movies(x, fields)
-## BONUS
+
+show_character_movies("Han Solo")
+# x = get_character_movies_from_api("Luke Skywalker")
+# fields = ["episode_id", "opening_crawl", "title"]
+# parse_character_movies(x, fields)
+# BONUS
 
 # that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
 # can you split it up into helper methods?
