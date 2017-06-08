@@ -32,20 +32,17 @@ def find_character_hash(character)
 
   #Add all pages to hash_array
   hash_array = []
+  hash_array += paged_hash["results"]
   while paged_hash["next"]
-    hash_array += paged_hash["results"]
     paged_hash = get_hash_from_api(paged_hash["next"])
+    hash_array += paged_hash["results"]
   end
 
   #Merge all hashes into one big hash
   character_hash = hash_array.each_with_object({}) do |hash, temp_hash|
     temp_hash[hash["name"]]= hash
   end
-  the_character = character_hash[character]
-  # the_character = character_hash.find do |char_hash|
-  #   char_hash["name"] == character
-  # end
-  the_character
+  character_hash[character]
 end
 
 
